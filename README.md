@@ -6,6 +6,10 @@ In its current state it is written to run as a service on OS X (10.9+) out of th
 
 This tool is completely command line driven and is **not** moron friendly. For g33ks, it is a two step install, and a one step configuration per server. The logs are very verbose and should indicate any issues.
 
+## Updates for 2022 and beyond
+This is a rather simple script, but there has been one slight change to the configparser dependency for python, which appears to now only install if lowercase. The rest of the 
+script continues to work as it has for years, as it is solidly engineered.
+
 ## Install
 
 ### Step 1 - Get code

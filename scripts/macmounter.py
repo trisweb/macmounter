@@ -3,7 +3,7 @@
 
 import os
 import sys
-import ConfigParser
+import configparser
 import argparse
 import logging
 import logging.handlers
@@ -25,8 +25,6 @@ def ctrlc_handler (signal, frame):
 def hup_handler (signal, frame):
     logger.info('Caught signal HUP. macmounter restarted!')
     launchMounters(updateConfig())
-    for mounter in mounterMap.values():
-        mounter.reload = True # This triggers the mounter to restart
 
 # Global variables are evil. Except these.
 logger = logging.getLogger("macmounter")
@@ -138,7 +136,7 @@ def operateOnSection(section, filename):
     return mounterthread
 
 def operateOnFile(filename):
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(filename)
     threads = []
     for section in config.sections():
@@ -372,10 +370,6 @@ def executeCommand(cmd, logPrefix="", returnstdout=False):
     except OSError as ose:
         #print "here3 RC"
         rc = ose.errno
-    except:
-        #print "here4 RC"
-        print traceback.format_exc()
-        print sys.exc_info()[0]
     finally:
         #print "here5 RC"
         logger.info(logPrefix + "RC=" + str(rc))
@@ -416,9 +410,8 @@ class mounter (threading.Thread):
          self.filename = filename
          self.section = section
          self.logprefix = "[" + self.section + "] "
-         self.config = ConfigParser.ConfigParser()
+         self.config = configparser.ConfigParser()
          self.mounted = False
-         self.reload = False
          self.updateConfigs()
 
      # Should be called *after* changing state
@@ -448,7 +441,7 @@ class mounter (threading.Thread):
 
      def updateConfigs (self):
          logger.info(self.logprefix + "Updating configs from file: " + self.filename + " and section: " + self.section)
-         self.config = ConfigParser.ConfigParser()
+         self.config = configparser.ConfigParser()
          self.config.read(self.filename)
          if not self.config.has_section(self.section):
              logger.info(self.logprefix + "Section has been removed from config file.")
@@ -517,9 +510,8 @@ class mounter (threading.Thread):
                  logger.error(e)
                  logger.info("File " + self.filename + " is gone!")
                  break
-             if (seconds % self.currentinterval == 0) or self.configsmodified or self.reload:
+             if (seconds % self.currentinterval == 0) or self.configsmodified:
                  try:
-                     self.reload = False
                      logger.info(self.logprefix + "Working on section [" + self.section + "] from file [" + self.filename + "]")
                      if isBlank(self.mountcmd):
                          #First make sure we have a mount command.
